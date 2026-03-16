@@ -253,13 +253,16 @@
           <div class="field-group"><label>CLASS / SECTION</label><input id="rClass" type="text" placeholder="e.g. CS-A, 3rd Year"/></div>
           <div class="field-group"><label>EMAIL</label><input id="rEmail" type="email" placeholder="student@email.com"/></div>
           <div id="regMsg" class="msg-box hidden"></div>
-        </div>
-
-        <div class="card qr-preview-card" id="qrPreviewCard" style="display:none">
-          <div class="card-head"><div class="ch-title">Generated QR Code</div></div>
-          <div class="qr-output" id="qrOutput"></div>
-          <p class="qr-hint">Print and give this QR to the student</p>
-          <button class="btn-pri" onclick="downloadQR()" style="width:100%;margin-top:12px">↓ Download QR</button>
+          <div id="qrPreviewCard" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)">
+            <div style="font-size:0.82rem;font-weight:700;color:var(--cyan);margin-bottom:12px;">✅ Enrolled! QR Code Generated</div>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <div id="qrOutput"></div>
+              <div style="flex:1;min-width:120px">
+                <p style="font-size:0.78rem;color:var(--txt2);margin-bottom:10px;line-height:1.5">Print and give this QR to the student for quick attendance scanning.</p>
+                <button class="btn-pri" onclick="downloadQR()" style="width:100%">↓ Download QR</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
