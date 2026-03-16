@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FaceAttend Pro — Smart Attendance System</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Outfit:wght@300;400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ══════ PARTICLES BG ══════ -->
+<canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-wrap">
+    <div class="login-orb orb1"></div>
+    <div class="login-orb orb2"></div>
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" stroke="url(#g1)" stroke-width="2"/><circle cx="20" cy="15" r="6" stroke="url(#g1)" stroke-width="1.5"/><path d="M8 34c0-6.627 5.373-12 12-12h0c6.627 0 12 5.373 12 12" stroke="url(#g1)" stroke-width="1.5"/><defs><linearGradient id="g1" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#00F5D4"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs></svg>
+        </div>
+        <div>
+          <div class="brand-name">FaceAttend <span class="pro-badge">PRO</span></div>
+          <div class="brand-sub">AI Attendance Platform</div>
+        </div>
+      </div>
+
+      <div class="login-tabs">
+        <button class="ltab active" onclick="setLoginTab(this)">Owner Login</button>
+      </div>
+
+      <div class="field-group">
+        <label>USERNAME</label>
+        <div class="field-wrap">
+          <input id="loginUser" type="text" placeholder="admin" autocomplete="off"/>
+          <span class="field-icon">◈</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>PASSWORD</label>
+        <div class="field-wrap">
+          <input id="loginPass" type="password" placeholder="••••••••" autocomplete="off"/>
+          <span class="field-icon">⬡</span>
+        </div>
+      </div>
+
+      <button class="login-btn" onclick="handleLogin()">
+        <span class="btn-text">ACCESS SYSTEM</span>
+        <span class="btn-arrow">→</span>
+      </button>
+      <div id="loginError" class="login-err hidden">⚠ Invalid credentials</div>
+      <p class="login-hint">Default: <code>admin</code> / <code>admin123</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="appScreen" class="screen">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-icon">
+        <svg viewBox="0 0 32 32" fill="none" width="28" height="28"><circle cx="16" cy="16" r="15" stroke="url(#sg)" stroke-width="1.5"/><circle cx="16" cy="12" r="5" stroke="url(#sg)" stroke-width="1.2"/><path d="M6 28c0-5.523 4.477-10 10-10h0c5.523 0 10 4.477 10 10" stroke="url(#sg)" stroke-width="1.2"/><defs><linearGradient id="sg" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#00F5D4"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs></svg>
+      </div>
+      <div>
+        <div class="sb-name">FaceAttend</div>
+        <div class="sb-pro">PRO</div>
+      </div>
+      <button class="sb-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="nav-section-label">MAIN</div>
+      <a class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+        <span class="ni">◈</span><span class="nl">Dashboard</span>
+      </a>
+      <a class="nav-item" id="nav-register" onclick="showPage('register')">
+        <span class="ni">◉</span><span class="nl">Register Student</span>
+      </a>
+      <div class="nav-section-label">ATTENDANCE</div>
+      <a class="nav-item" id="nav-hybrid" onclick="showPage('hybrid')">
+        <span class="ni">⬡</span><span class="nl">Take Attendance</span>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a class="nav-item" id="nav-face" onclick="showPage('face')">
+        <span class="ni">◎</span><span class="nl">Face Only</span>
+      </a>
+      <a class="nav-item" id="nav-qrscan" onclick="showPage('qrscan')">
+        <span class="ni">▣</span><span class="nl">QR Only</span>
+      </a>
+      <div class="nav-section-label">MANAGE</div>
+      <a class="nav-item" id="nav-students" onclick="showPage('students')">
+        <span class="ni">◫</span><span class="nl">Students</span>
+      </a>
+      <a class="nav-item" id="nav-records" onclick="showPage('records')">
+        <span class="ni">◌</span><span class="nl">Records</span>
+      </a>
+      <a class="nav-item" id="nav-settings" onclick="showPage('settings')">
+        <span class="ni">⊕</span><span class="nl">Settings</span>
+      </a>
+    </nav>
+
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatar">A</div>
+        <div class="sb-uinfo">
+          <div id="sbUsername">admin</div>
+          <div class="sb-role">Owner</div>
+        </div>
+      </div>
+      <button class="sb-logout" onclick="logout()" title="Logout">⏻</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="tb-left">
+        <button class="tb-menu" onclick="toggleSidebar()">☰</button>
+        <div class="tb-title" id="tbTitle">Dashboard</div>
+      </div>
+      <div class="tb-right">
+        <div class="tb-date" id="tbDate"></div>
+        <div class="model-pill" id="modelPill">
+          <span class="mp-dot loading"></span>
+          <span id="modelText">Loading AI…</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ════════ DASHBOARD ════════ -->
+    <section id="page-dashboard" class="page active">
+
+      <!-- STAT CARDS -->
+      <div class="stat-row">
+        <div class="stat-card s1">
+          <div class="sc-top">
+            <div class="sc-label">Registered Students</div>
+            <div class="sc-icon">◉</div>
+          </div>
+          <div class="sc-val" id="stTotal">0</div>
+          <div class="sc-bar"><div class="sc-fill f1" id="stTotalBar"></div></div>
+        </div>
+        <div class="stat-card s2">
+          <div class="sc-top">
+            <div class="sc-label">Present Today</div>
+            <div class="sc-icon">✓</div>
+          </div>
+          <div class="sc-val" id="stPresent">0</div>
+          <div class="sc-bar"><div class="sc-fill f2" id="stPresentBar"></div></div>
+        </div>
+        <div class="stat-card s3">
+          <div class="sc-top">
+            <div class="sc-label">Attendance Rate</div>
+            <div class="sc-icon">◎</div>
+          </div>
+          <div class="sc-val" id="stRate">0%</div>
+          <div class="sc-bar"><div class="sc-fill f3" id="stRateBar"></div></div>
+        </div>
+        <div class="stat-card s4">
+          <div class="sc-top">
+            <div class="sc-label">Total Records</div>
+            <div class="sc-icon">◫</div>
+          </div>
+          <div class="sc-val" id="stRecords">0</div>
+          <div class="sc-bar"><div class="sc-fill f4" id="stRecordsBar"></div></div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="chart-row">
+        <div class="card chart-card wide">
+          <div class="card-head">
+            <div class="ch-title">Weekly Attendance</div>
+            <div class="ch-sub" id="weekRange"></div>
+          </div>
+          <div class="chart-wrap"><canvas id="weeklyChart"></canvas></div>
+        </div>
+        <div class="card chart-card">
+          <div class="card-head"><div class="ch-title">Today's Status</div></div>
+          <div class="chart-wrap donut-wrap"><canvas id="todayChart"></canvas></div>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+
+      <!-- BOTTOM ROW -->
+      <div class="dash-bottom">
+        <div class="card">
+          <div class="card-head"><div class="ch-title">Recent Activity</div></div>
+          <div id="recentFeed" class="recent-feed">
+            <div class="empty-state">No activity today yet.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="ch-title">Hourly Trend</div></div>
+          <div class="chart-wrap small-chart"><canvas id="hourlyChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="ch-title">Quick Actions</div></div>
+          <div class="quick-grid">
+            <button class="qbtn" onclick="showPage('hybrid')">
+              <span class="qb-icon">⬡</span>
+              <span>Start Attendance</span>
+            </button>
+            <button class="qbtn" onclick="showPage('register')">
+              <span class="qb-icon">◉</span>
+              <span>Register Face</span>
+            </button>
+            <button class="qbtn" onclick="downloadTodayCSV()">
+              <span class="qb-icon">↓</span>
+              <span>Export CSV</span>
+            </button>
+            <button class="qbtn" onclick="openSheet()">
+              <span class="qb-icon">◫</span>
+              <span>Google Sheet</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ REGISTER ════════ -->
+    <section id="page-register" class="page">
+      <div class="page-hdr">
+        <h1>Register Student</h1>
+        <p>Capture face + generate QR for each student</p>
+      </div>
+      <div class="reg-layout">
+        <div class="card cam-card">
+          <div class="video-box" id="regVideoBox">
+            <video id="regVideo" autoplay muted playsinline></video>
+            <canvas id="regOverlay"></canvas>
+            <div class="cam-corners"><i></i><i></i><i></i><i></i></div>
+            <div class="scan-beam" id="regBeam"></div>
+            <div class="face-pill" id="regFacePill">No face detected</div>
+          </div>
+          <div class="cam-btns">
+            <button class="btn-sec" onclick="startRegCam()">▶ Camera</button>
+            <button class="btn-pri" id="regCaptureBtn" onclick="doRegister()" disabled>⬡ Enroll</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="ch-title">Student Info</div></div>
+          <div class="field-group"><label>FULL NAME *</label><input id="rName" type="text" placeholder="Student name"/></div>
+          <div class="field-group"><label>STUDENT ID *</label><input id="rId" type="text" placeholder="STU001 or Roll No."/></div>
+          <div class="field-group"><label>CLASS / SECTION</label><input id="rClass" type="text" placeholder="e.g. CS-A, 3rd Year"/></div>
+          <div class="field-group"><label>EMAIL</label><input id="rEmail" type="email" placeholder="student@email.com"/></div>
+          <div id="regMsg" class="msg-box hidden"></div>
+        </div>
+
+        <div class="card qr-preview-card" id="qrPreviewCard" style="display:none">
+          <div class="card-head"><div class="ch-title">Generated QR Code</div></div>
+          <div class="qr-output" id="qrOutput"></div>
+          <p class="qr-hint">Print and give this QR to the student</p>
+          <button class="btn-pri" onclick="downloadQR()" style="width:100%;margin-top:12px">↓ Download QR</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ HYBRID ATTENDANCE ════════ -->
+    <section id="page-hybrid" class="page">
+      <div class="page-hdr">
+        <h1>Hybrid Attendance <span class="pro-badge">HYBRID</span></h1>
+        <p>Face recognition + QR code — either one marks attendance</p>
+      </div>
+      <div class="hybrid-layout">
+        <div class="card cam-card large">
+          <div class="hybrid-mode-bar">
+            <button class="mode-btn active" id="modeAuto" onclick="setHybridMode('auto')">⬡ AUTO (Both)</button>
+            <button class="mode-btn" id="modeFace" onclick="setHybridMode('face')">◎ Face Only</button>
+            <button class="mode-btn" id="modeQr" onclick="setHybridMode('qr')">▣ QR Only</button>
+          </div>
+          <div class="video-box large" id="hybridVideoBox">
+            <video id="hybridVideo" autoplay muted playsinline></video>
+            <canvas id="hybridOverlay"></canvas>
+            <div class="cam-corners"><i></i><i></i><i></i><i></i></div>
+            <div class="qr-scan-zone" id="qrZone" style="display:none">
+              <div class="qr-box-anim"></div>
+            </div>
+            <div class="recog-flash" id="recogFlash"></div>
+          </div>
+          <div class="att-status-bar">
+            <div class="att-result" id="hybridResult">
+              <div class="ars idle">⬡ READY — Start camera to begin</div>
+            </div>
+            <div class="cam-btns">
+              <button class="btn-sec" id="hybridStopBtn" onclick="stopHybridCam()" style="display:none">■ Stop</button>
+              <button class="btn-pri" id="hybridStartBtn" onclick="startHybridCam()">▶ Start</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card log-panel">
+          <div class="card-head">
+            <div class="ch-title">Today's Log</div>
+            <div class="log-count-badge" id="hybridLogCount">0</div>
+          </div>
+          <div class="att-log" id="hybridLog">
+            <div class="empty-state">Waiting for attendance…</div>
+          </div>
+          <div class="log-footer">
+            <button class="btn-sec small" onclick="downloadTodayCSV()">↓ Export</button>
+            <button class="btn-sec small" onclick="clearTodayLog()">✕ Clear</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ FACE ONLY ════════ -->
+    <section id="page-face" class="page">
+      <div class="page-hdr"><h1>Face Recognition</h1><p>Auto-detects and marks attendance by face</p></div>
+      <div class="hybrid-layout">
+        <div class="card cam-card large">
+          <div class="video-box large">
+            <video id="faceVideo" autoplay muted playsinline></video>
+            <canvas id="faceOverlay"></canvas>
+            <div class="cam-corners"><i></i><i></i><i></i><i></i></div>
+            <div class="recog-flash" id="faceFlash"></div>
+          </div>
+          <div class="att-status-bar">
+            <div class="att-result" id="faceResult"><div class="ars idle">⬡ WAITING</div></div>
+            <div class="cam-btns">
+              <button class="btn-sec" id="faceStopBtn" onclick="stopFaceCam()" style="display:none">■ Stop</button>
+              <button class="btn-pri" id="faceStartBtn" onclick="startFaceCam()">▶ Start Camera</button>
+            </div>
+          </div>
+        </div>
+        <div class="card log-panel">
+          <div class="card-head"><div class="ch-title">Face Log</div><div class="log-count-badge" id="faceLogCount">0</div></div>
+          <div class="att-log" id="faceLog"><div class="empty-state">No records yet.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ QR SCAN ════════ -->
+    <section id="page-qrscan" class="page">
+      <div class="page-hdr"><h1>QR Code Scanner</h1><p>Scan student QR codes to mark attendance</p></div>
+      <div class="hybrid-layout">
+        <div class="card cam-card large">
+          <div class="video-box large">
+            <video id="qrVideo" autoplay muted playsinline></video>
+            <canvas id="qrOverlay"></canvas>
+            <div class="cam-corners"><i></i><i></i><i></i><i></i></div>
+            <div class="qr-scan-zone active">
+              <div class="qr-box-anim"></div>
+            </div>
+          </div>
+          <div class="att-status-bar">
+            <div class="att-result" id="qrResult"><div class="ars idle">▣ Point QR code at camera</div></div>
+            <div class="cam-btns">
+              <button class="btn-sec" id="qrStopBtn" onclick="stopQRCam()" style="display:none">■ Stop</button>
+              <button class="btn-pri" id="qrStartBtn" onclick="startQRCam()">▶ Start Scanner</button>
+            </div>
+          </div>
+        </div>
+        <div class="card log-panel">
+          <div class="card-head"><div class="ch-title">QR Log</div><div class="log-count-badge" id="qrLogCount">0</div></div>
+          <div class="att-log" id="qrLog"><div class="empty-state">No scans yet.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ STUDENTS ════════ -->
+    <section id="page-students" class="page">
+      <div class="page-hdr">
+        <h1>Students</h1>
+        <div class="ph-right">
+          <input id="stuSearch" type="text" placeholder="Search…" class="search-inp" oninput="filterStudents()"/>
+          <span id="stuCount" class="count-chip">0 students</span>
+        </div>
+      </div>
+      <div id="stuGrid" class="stu-grid">
+        <div class="empty-state wide">No students registered yet.</div>
+      </div>
+    </section>
+
+    <!-- ════════ RECORDS ════════ -->
+    <section id="page-records" class="page">
+      <div class="page-hdr">
+        <h1>Attendance Records</h1>
+        <div class="ph-right">
+          <input id="recDate" type="date" class="search-inp" onchange="filterRecords()"/>
+          <button class="btn-sec small" onclick="downloadTodayCSV()">↓ CSV</button>
+        </div>
+      </div>
+      <div class="card">
+        <table class="records-table" id="recordsTable">
+          <thead>
+            <tr><th>Date</th><th>Time</th><th>Name</th><th>ID</th><th>Class</th><th>Method</th></tr>
+          </thead>
+          <tbody id="recordsBody">
+            <tr><td colspan="6" class="empty-state">No records found.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ════════ SETTINGS ════════ -->
+    <section id="page-settings" class="page">
+      <div class="page-hdr"><h1>Settings</h1></div>
+      <div class="settings-grid">
+
+        <div class="card">
+          <div class="card-head"><div class="ch-title">🔗 Google Sheets</div></div>
+          <p class="set-desc">Connect to Google Sheets for cloud attendance storage.</p>
+          <div class="field-group"><label>APPS SCRIPT WEB APP URL</label><input id="setScriptUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec"/></div>
+          <div class="field-group"><label>GOOGLE SHEET VIEW URL</label><input id="setSheetUrl" type="url" placeholder="https://docs.google.com/spreadsheets/d/..."/></div>
+          <button class="btn-pri" onclick="saveSettings()" style="width:100%">Save</button>
+          <div id="setMsg" class="msg-box hidden"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="ch-title">🔐 Credentials</div></div>
+          <div class="field-group"><label>NEW USERNAME</label><input id="setUser" type="text"/></div>
+          <div class="field-group"><label>NEW PASSWORD</label><input id="setPass" type="password" placeholder="Min 6 characters"/></div>
+          <div class="field-group"><label>CONFIRM PASSWORD</label><input id="setPassC" type="password"/></div>
+          <button class="btn-pri" onclick="updateCreds()" style="width:100%">Update</button>
+          <div id="credMsg" class="msg-box hidden"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="ch-title">⚙ Recognition Settings</div></div>
+          <div class="field-group"><label>FACE THRESHOLD (0.3 strict – 0.6 loose)</label><input id="setThresh" type="range" min="0.3" max="0.6" step="0.01" oninput="updateThreshLabel(this.value)" style="width:100%;accent-color:#00F5D4"/></div>
+          <div class="thresh-val" id="threshVal">0.45</div>
+          <div class="field-group"><label>COOLDOWN BETWEEN SCANS (seconds)</label><input id="setCooldown" type="number" min="2" max="30" value="5"/></div>
+          <button class="btn-pri" onclick="saveRecogSettings()" style="width:100%">Save</button>
+        </div>
+
+        <div class="card danger-card">
+          <div class="card-head"><div class="ch-title">⚠ Danger Zone</div></div>
+          <div class="danger-row">
+            <button class="btn-danger" onclick="clearTodayLog()">Clear Today</button>
+            <button class="btn-danger" onclick="clearAllStudents()">Delete All Students</button>
+            <button class="btn-danger" onclick="clearAllData()">Wipe All Data</button>
+          </div>
+        </div>
+
+        <div class="card setup-guide">
+          <div class="card-head"><div class="ch-title">📋 Setup Guide</div></div>
+          <ol class="guide-list">
+            <li>Go to <strong>script.google.com</strong> → New project</li>
+            <li>Paste code from <code>google-apps-script.js</code></li>
+            <li>Replace <code>YOUR_SHEET_ID</code> with your Google Sheet ID</li>
+            <li><strong>Deploy → Web App → Anyone → Deploy</strong></li>
+            <li>Copy Web App URL → paste above in Settings</li>
+            <li>Upload all files to GitHub → enable GitHub Pages</li>
+            <li>Your live URL: <code>https://username.github.io/face-attendance</code></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- SCRIPTS (CDN — all free) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.14/dist/face-api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
