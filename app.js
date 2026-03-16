@@ -278,13 +278,7 @@ function showQRPreview(student) {
   const card = document.getElementById('qrPreviewCard');
   const out  = document.getElementById('qrOutput');
   card.style.display = '';
-  out.innerHTML = '';
-  const canvas = document.createElement('canvas');
-  out.appendChild(canvas);
-  QRCode.toCanvas(canvas, makeQRData(student), {
-    width: 200, margin: 2,
-    color: { dark: '#00F5D4', light: '#0D1220' }
-  });
+  out.innerHTML = `<img src="${getQRUrl(student, 180)}" style="border-radius:8px;border:2px solid #00F5D4" width="180" height="180" alt="QR Code"/>`;
   card._student = student;
 }
 
@@ -292,17 +286,21 @@ function makeQRData(student) {
   return JSON.stringify({ id: student.id, name: student.name, class: student.class || '', type: 'faceattend' });
 }
 
+function getQRUrl(student, size=200) {
+  const data = encodeURIComponent(makeQRData(student));
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${data}&color=00F5D4&bgcolor=0D1220`;
+}
+
 function downloadQR() {
   const card = document.getElementById('qrPreviewCard');
   const s    = card._student;
   if (!s) return;
-  const canvas = document.createElement('canvas');
-  QRCode.toCanvas(canvas, makeQRData(s), { width: 400, margin: 3, color: { dark: '#000000', light: '#FFFFFF' } }, () => {
-    const a = document.createElement('a');
-    a.download = `QR_${s.name}_${s.id}.png`;
-    a.href = canvas.toDataURL();
-    a.click();
-  });
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(makeQRData(s))}&color=000000&bgcolor=FFFFFF`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `QR_${s.name}_${s.id}.png`;
+  a.target = '_blank';
+  a.click();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -868,7 +866,7 @@ function renderStudents(list) {
       if (!el) return;
       const c = document.createElement('canvas');
       el.appendChild(c);
-      try { QRCode.toCanvas(c, makeQRData(s), { width: 60, margin: 1, color: { dark: '#00F5D4', light: '#111827' } }); } catch {}
+      try { c.outerHTML = `<img src="${getQRUrl(s, 60)}" width="60" height="60" style="border-radius:4px" alt="QR"/>`; } catch {}
     });
   }, 0);
 }
