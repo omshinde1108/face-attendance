@@ -216,12 +216,12 @@ async function startRegCam() {
 function startRegDetect(video) {
   const canvas = document.getElementById('regOverlay');
   const pill   = document.getElementById('regFacePill');
-  const opts   = new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 });
+  const opts   = new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 });
 
   async function run() {
     if (!streams['reg']) return;
-    canvas.width  = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width  = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
     const det = await faceapi.detectSingleFace(video, opts).withFaceLandmarks();
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
